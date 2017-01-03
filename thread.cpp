@@ -3,16 +3,16 @@
 
 namespace OoT
 {
-Thread::Thread(SharedPtr<Runnable> runnable)
+Thread::Thread(std::shared_ptr<Runnable> runnable)
 {
     if (runnable)
     {
-        mThread = SharedPtr<StdThread>(new StdThread(*runnable));
-        mRunnable.reset(runnable);
+        mThread = std::shared_ptr<std::thread>(new std::thread(*runnable));
+        mRunnable = runnable;
     }
     else
     {
-        mThread = SharedPtr<StdThread>(new StdThread());
+        mThread = std::shared_ptr<std::thread>(new std::thread());
     }
 }
 

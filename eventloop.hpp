@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "portablility.hpp"
+#include "portabilility.hpp"
 
 
 #include "runnable.hpp"
@@ -21,13 +21,13 @@ class EventHandler : public Runnable
         EventHandler() {}
         virtual ~EventHandler() {}
 
-        virtual void Operator()();
+        virtual void operator()();
         
         virtual void handle() = 0;
-        virtual void SetEvent(SharedPtr<Event>);
+        virtual void SetEvent(std::shared_ptr<Event>);
         
     protected:
-        SharedPtr<Event> mEvent;
+        std::shared_ptr<Event> mEvent;
 };
 
 class EventLoop
@@ -37,15 +37,15 @@ class EventLoop
         virtual ~EventLoop() {}
 
         void Process();
-        void Post(SharedPtr<Event>);
+        void Post(std::shared_ptr<Event>);
 
-        void RegisterHandle(const std::type_index&, SharedPtr<EventHandler>);
+        void RegisterHandle(const std::type_index&, std::shared_ptr<EventHandler>);
         void UnregisterHandle(const std::type_index&);
     private:
-        std::list<SharedPtr<Event> > mUndlying;
-        std::map<std::type_index, SharedPtr<EventHandler> > mHandlers;
+        std::list<std::shared_ptr<Event> > mUndlying;
+        std::map<std::type_index, std::shared_ptr<EventHandler> > mHandlers;
 
-        Mutex mMutex;
+        std::mutex mMutex;
 };
 
 }

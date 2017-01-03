@@ -4,42 +4,44 @@
 
 using namespace OoT;
 
-class EventAdd
+class EventAdd : public Event
 {
     public:
         EventAdd(int x)
         {
-            param1 = x);
+            param1 = x;
         }
+        virtual ~EventAdd() {}
         int param1;
 };
 
 class EventAddHandler : public EventHandler
 {
     public:
+
         virtual void handle()
         {
-            SharedPtr<EventAdd> e = std::dynamic_pointer_cast<EventAdd>(mEvent);
+            std::shared_ptr<EventAdd> e = std::dynamic_pointer_cast<EventAdd>(mEvent);
             if (e)
             {
-                EventAddHandler::sum += e.param1;
+                EventAddHandler::sum += e->param1;
 
                 printf("LALALA~%d\n", EventAddHandler::sum);
             }
         }
 
         static int sum;
-}
+};
 
 int EventAddHandler::sum = 0;
 
 void testJob()
 {
     Job myJob;
-    myJob.RegisterHandle(typeid(EventAdd), SharedPtr<EventHandler>(new EventAddHandler));
+    myJob.RegisterHandle(typeid(EventAdd), std::shared_ptr<EventHandler>(new EventAddHandler));
     for (int i = 0; i < 100; i ++)
     {
-        myJob.Post(SharedPtr<Event>(new EventAdd(i));
+        myJob.Post(std::shared_ptr<Event>(new EventAdd(i)));
     }
 
     myJob.join();

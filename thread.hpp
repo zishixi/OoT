@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "portablility.hpp"
+#include "portabilility.hpp"
 
 #include "runnable.hpp"
 
@@ -11,15 +11,15 @@ namespace OoT
 class Thread
 {
     public:
-        Thread(SharedPtr<Runnable> runnable);
+        Thread(std::shared_ptr<Runnable> runnable);
         virtual ~Thread();
 
         virtual void join();
 
-    private:
+    protected:
         Thread() {}
-        SharedPtr<Runnable> mRunnable;
-        SharedPtr<StdThread> mThread;
+        std::shared_ptr<Runnable> mRunnable;
+        std::shared_ptr<std::thread> mThread;
 };
 
 }

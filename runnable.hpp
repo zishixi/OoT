@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "portablility.hpp"
+#include "portabilility.hpp"
 
 
 namespace OoT
@@ -10,7 +10,7 @@ namespace OoT
 class Runnable
 {
     public:
-        virtual void operator()() = 0;
+        virtual void operator()() {};
 };
 
 }

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "portablility.hpp"
+#include "portabilility.hpp"
 
 #include "runnable.hpp"
 #include "thread.hpp"
@@ -16,14 +16,16 @@ class Job : public Thread
         Job();
         virtual ~Job() {}
     
-        void RegisterHandle(const std::type_index&, SharedPtr<EventHandler>);
+        void RegisterHandle(const std::type_index&, std::shared_ptr<EventHandler>);
         void UnregisterHandle(const std::type_index&);
 
-        void Post(SharedPtr<Event>);
-        void Run();
+        void Post(std::shared_ptr<Event>);
     private:
         EventLoop mEventLoop;
-        Condition mCondition;
+        std::condition_variable mCondition;
+        std::mutex mMutex;
+
+        friend void run(void *p);
 };
 
 }

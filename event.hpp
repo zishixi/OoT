@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "portablility.hpp"
+#include "portabilility.hpp"
 
 namespace OoT
 {
@@ -9,13 +9,13 @@ namespace OoT
 class Event
 {
     public:
-        virtual ~Event() = 0;
+        virtual ~Event() {};
 };
 
 class EventQuit : public Event
 {
     public:
-        virtual ~Event() {};
-}
+        virtual ~EventQuit() {};
+};
 
 }

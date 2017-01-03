@@ -1,24 +1,22 @@
 
-#include "portability.hpp"
-
 #include "eventloop.hpp"
 
 namespace OoT
 {
     
-void EventHandler::SetEvent(SharedPtr<Event> e)
+void EventHandler::SetEvent(std::shared_ptr<Event> e)
 {
     mEvent = e;
 }
 
-void EventHandler::Operator()()
+void EventHandler::operator()()
 {
-    handler();
+    handle();
 }
 
 void EventLoop::Process()
 {
-    UniqueLock<Mutex> lk(mMutex);
+    std::unique_lock<std::mutex> lk(mMutex);
     
     if (mUndlying.empty())
     {
@@ -26,33 +24,36 @@ void EventLoop::Process()
         return;
     }
     
-    SharedPtr<Event> e = mUndlying.front();
+    std::shared_ptr<Event> e = mUndlying.front();
+
     mUndlying.pop_front();
     
     if (!e)
-    {
+    {
+
         //TODO: 
         return;
     }
 
-    if (mHandlers.find(typeid(*e)) = mHandlers.end())
+    if (mHandlers.find(std::type_index(std::type_index(typeid(*e)))) == mHandlers.end())
     {
         //TODO: 
         return;
     }
 
-    SharedPtr<EventHandler> h = mHandlers[typeid(*e)];
+    std::shared_ptr<EventHandler> h = mHandlers[std::type_index(typeid(*e))];
 
     if (h)
-    {
+    {
+
         h->SetEvent(e);
         (*h)();
     }
 }
 
-void EventLoop::Post(SharedPtr<Event> e)
+void EventLoop::Post(std::shared_ptr<Event> e)
 {
-    UniqueLock<Mutex> lk(mMutex);
+    std::unique_lock<std::mutex> lk(mMutex);
     
     if(e)
     {
@@ -64,11 +65,11 @@ void EventLoop::Post(SharedPtr<Event> e)
     }
 }
 
-void EventLoop::RegisterHandle(const std::type_index& t, SharedPtr<EventHandler> h)
-{   
-    UniqueLock<Mutex> lk(mMutex);
+void EventLoop::RegisterHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
+{
+    std::unique_lock<std::mutex> lk(mMutex);
     
-    if (mHandlers.find(t.type_index) == mHandlers.end())
+    if (mHandlers.find(t) == mHandlers.end())
     {
         mHandlers.insert(std::make_pair(t, h));
     }
@@ -80,11 +81,11 @@ void EventLoop::RegisterHandle(const std::type_index& t, SharedPtr<EventHandler>
 
 void EventLoop::UnregisterHandle(const std::type_index& t)
 {
-    UniqueLock<Mutex> lk(mMutex);
+    std::unique_lock<std::mutex> lk(mMutex);
     
-    if (mHandlers.find(t.type_index) != mHandlers.end())
+    if (mHandlers.find(t) != mHandlers.end())
     {
-        mHandlers.earse(t.type_index);
+        mHandlers.erase(t);
     }
     else
     {
