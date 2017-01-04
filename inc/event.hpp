@@ -22,7 +22,7 @@ public:
     {
         mNotifier = notifier;
     }
-    
+
 protected:
     std::shared_ptr<Runnable> mNotifier;
 };
@@ -31,10 +31,6 @@ class EventQuit : public Event
 {
 public:
     virtual ~EventQuit() {};
-};
-
-class QuitException : public std::exception
-{
 };
 
 }

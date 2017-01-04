@@ -45,9 +45,7 @@ void testJob()
         myJob.Post(std::shared_ptr<Event>(new EventAdd(i)));
     }
 
-    myJob.Post(std::shared_ptr<Event>(new EventQuit()));
-
-    myJob.join();
+    myJob.Quit();
 }
 
 int main()

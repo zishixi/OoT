@@ -5,30 +5,32 @@
 
 #include "runnable.hpp"
 #include "eventqueue.hpp"
-#include "thread.hpp"
 
 namespace OoT
 {
 
-class Job : public Thread
+class Job
 {
 public:
     Job();
-    virtual ~Job() {}
+    virtual ~Job();
 
-    void RegisterHandle(const std::type_index&, std::shared_ptr<EventHandler>);
-    void UnregisterHandle(const std::type_index&);
+    virtual void RegisterHandle(const std::type_index&, std::shared_ptr<EventHandler>);
+    virtual void UnregisterHandle(const std::type_index&);
 
-    void Post(std::shared_ptr<Event>);
+    virtual void Post(std::shared_ptr<Event>);
+
+    virtual void Quit();
 
     bool isBusy() const;
 private:
     EventQueue mEventQueue;
+    std::shared_ptr<std::thread> mThread;
     std::condition_variable mCondition;
     std::mutex mMutex;
 
     std::atomic<int> mBusy;
-    
+
     friend void run(void *p);
 };
 

@@ -45,6 +45,20 @@ Job::Job() : mBusy(0)
     mThread = std::shared_ptr<std::thread>(new std::thread(run, this));
 }
 
+Job::~Job()
+{
+    if(mThread)
+    {
+        mThread.reset();
+    }
+}
+
+void Job::Quit()
+{
+    Post(std::shared_ptr<EventQuit>(new EventQuit()));
+    mThread->join();
+}
+
 void Job::RegisterHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
 {
     mEventQueue.RegisterHandle(t, h);
