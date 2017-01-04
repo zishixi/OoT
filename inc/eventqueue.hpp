@@ -4,7 +4,7 @@
 #include "portability.hpp"
 
 
-#include "runnable.hpp"
+#include "../inc/runnable.hpp"
 #include "event.hpp"
 
 #include <list>
@@ -30,13 +30,14 @@ class EventHandler : public Runnable
         std::shared_ptr<Event> mEvent;
 };
 
-class EventLoop
+class EventQueue
 {
     public:
-        EventLoop() {}
-        virtual ~EventLoop() {}
+        EventQueue() {}
+        virtual ~EventQueue() {}
 
         void Process();
+
         void Post(std::shared_ptr<Event>);
 
         void RegisterHandle(const std::type_index&, std::shared_ptr<EventHandler>);

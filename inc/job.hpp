@@ -4,7 +4,7 @@
 #include "portability.hpp"
 
 #include "runnable.hpp"
-#include "eventloop.hpp"
+#include "eventqueue.hpp"
 #include "thread.hpp"
 
 namespace OoT
@@ -21,7 +21,7 @@ class Job : public Thread
 
         void Post(std::shared_ptr<Event>);
     private:
-        EventLoop mEventLoop;
+        EventQueue mEventQueue;
         std::condition_variable mCondition;
         std::mutex mMutex;
 

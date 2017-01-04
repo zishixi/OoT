@@ -4,27 +4,6 @@
 namespace OoT
 {
 
-   
-Job::Job()
-{
-    mThread = std::shared_ptr<std::thread>(new std::thread(run, this));
-}
-
-void Job::RegisterHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
-{
-    mEventLoop.RegisterHandle(t, h);
-}
-
-void Job::UnregisterHandle(const std::type_index& t)
-{
-    mEventLoop.UnregisterHandle(t);
-}
-
-void Job::Post(std::shared_ptr<Event> e)
-{
-    mEventLoop.Post(e);
-    mCondition.notify_one();
-}
 
 void run(void *p)
 {
@@ -37,8 +16,31 @@ void run(void *p)
     while (1)
     {
         pJob->mCondition.wait(lk);
-        pJob->mEventLoop.Process();
+        pJob->mEventQueue.Process();
     }
 }
+
+Job::Job()
+{
+    mThread = std::shared_ptr<std::thread>(new std::thread(run, this));
+}
+
+void Job::RegisterHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
+{
+    mEventQueue.RegisterHandle(t, h);
+}
+
+void Job::UnregisterHandle(const std::type_index& t)
+{
+    mEventQueue.UnregisterHandle(t);
+}
+
+void Job::Post(std::shared_ptr<Event> e)
+{
+    std::unique_lock<std::mutex> lk(mMutex);
+    mEventQueue.Post(e);
+    mCondition.notify_one();
+}
+
 }
 
