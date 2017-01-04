@@ -20,7 +20,6 @@ Thread::~Thread()
 {
     if(mThread)
     {
-        mThread->detach();
         mThread.reset();
     }
 

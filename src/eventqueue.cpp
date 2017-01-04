@@ -12,10 +12,22 @@ void EventHandler::SetEvent(std::shared_ptr<Event> e)
 void EventHandler::operator()()
 {
     handle();
+    if (mEvent)
+    {
+        mEvent->notify();
+    }
 }
 
-void EventQueue::Process()
+EventQueue::~EventQueue()
 {
+    std::unique_lock<std::mutex> lk(mMutex);
+    mUndlying.clear();
+    mHandlers.clear();;
+}
+
+int EventQueue::Process()
+{
+    int isQuit = 0;
     std::unique_lock<std::mutex> lk(mMutex);
     
     while(!mUndlying.empty())
@@ -30,6 +42,14 @@ void EventQueue::Process()
             continue;
         }
 
+        if (typeid(*e) == typeid(EventQuit))
+        {
+            printf("~~~\n");
+            lk.unlock();
+            isQuit = 1;
+            break;
+        }
+        
         if (mHandlers.find(std::type_index(std::type_index(typeid(*e)))) == mHandlers.end())
         {
             /// no handler
@@ -44,6 +64,8 @@ void EventQueue::Process()
             (*h)();
         }
     }
+
+    return isQuit;
 }
 
 void EventQueue::Post(std::shared_ptr<Event> e)

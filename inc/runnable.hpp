@@ -9,8 +9,8 @@ namespace OoT
 
 class Runnable
 {
-    public:
-        virtual void operator()() {};
+public:
+    virtual void operator()() {};
 };
 
 }

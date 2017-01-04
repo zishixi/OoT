@@ -12,15 +12,35 @@ void run(void *p)
     {
         return;
     }
+
+    int isQuit = 0;
     std::unique_lock<std::mutex> lk(pJob->mMutex);
-    while (1)
+    while (0 == isQuit)
     {
         pJob->mCondition.wait(lk);
-        pJob->mEventQueue.Process();
+        pJob->mBusy.store(1);
+        try
+        {
+            isQuit = pJob->mEventQueue.Process();
+        }
+        catch(std::exception &e)
+        {
+            //TODO:
+        }
+        catch(...)
+        {
+            //TODO:
+        }
+        pJob->mBusy.store(0);
     }
 }
 
-Job::Job()
+bool Job::isBusy() const
+{
+    return (1 == mBusy.load());
+}
+
+Job::Job() : mBusy(0)
 {
     mThread = std::shared_ptr<std::thread>(new std::thread(run, this));
 }
@@ -37,7 +57,7 @@ void Job::UnregisterHandle(const std::type_index& t)
 
 void Job::Post(std::shared_ptr<Event> e)
 {
-    std::unique_lock<std::mutex> lk(mMutex);
+    std::lock_guard<std::mutex> lk(mMutex);
     mEventQueue.Post(e);
     mCondition.notify_one();
 }

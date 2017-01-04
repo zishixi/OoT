@@ -5,5 +5,6 @@
 #include <condition_variable>
 #include <thread>
 #include <memory>
+#include <atomic>
 
 
