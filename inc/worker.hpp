@@ -3,25 +3,28 @@
 
 #include "portability.hpp"
 
-#include "runnable.hpp"
+#include "event.hpp"
 #include "eventqueue.hpp"
+
 
 namespace OoT
 {
-
-class Job
+    
+class Worker
 {
 public:
-    Job();
-    virtual ~Job();
-
+    Worker();
+    virtual ~Worker();
+    
     virtual void RegisterHandle(const std::type_index&, std::shared_ptr<EventHandler>);
     virtual void UnregisterHandle(const std::type_index&);
-
+    
+    
     virtual void Post(std::shared_ptr<Event>);
-
     virtual void Quit();
 
+    virtual void Join();
+    
     bool isBusy() const;
 private:
     EventQueue mEventQueue;
@@ -32,8 +35,7 @@ private:
     std::atomic<int> mBusy;
 
     friend void run(void *p);
+
 };
 
 }
-
-

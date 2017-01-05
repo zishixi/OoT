@@ -12,17 +12,13 @@ void EventHandler::SetEvent(std::shared_ptr<Event> e)
 void EventHandler::operator()()
 {
     handle();
-    if (mEvent)
-    {
-        mEvent->notify();
-    }
 }
 
 EventQueue::~EventQueue()
 {
     std::unique_lock<std::mutex> lk(mMutex);
     mUndlying.clear();
-    mHandlers.clear();;
+    mHandlers.clear();
 }
 
 int EventQueue::Process()
@@ -44,7 +40,6 @@ int EventQueue::Process()
 
         if (typeid(*e) == typeid(EventQuit))
         {
-            printf("~~~\n");
             lk.unlock();
             isQuit = 1;
             break;

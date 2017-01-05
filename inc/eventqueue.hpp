@@ -24,10 +24,12 @@ public:
     virtual void operator()();
     
     virtual void handle() = 0;
-    virtual void SetEvent(std::shared_ptr<Event>);
     
 protected:
+    virtual void SetEvent(std::shared_ptr<Event>);
     std::shared_ptr<Event> mEvent;
+
+    friend class EventQueue;
 };
 
 class EventQueue
