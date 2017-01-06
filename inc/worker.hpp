@@ -10,23 +10,25 @@
 namespace OoT
 {
     
-class Worker
+class Worker : public std::enable_shared_from_this<Worker>
 {
 public:
-    Worker();
+    Worker(std::string name);
     virtual ~Worker();
     
-    virtual void RegisterHandle(const std::type_index&, std::shared_ptr<EventHandler>);
-    virtual void UnregisterHandle(const std::type_index&);
-    
-    
-    virtual void Post(std::shared_ptr<Event>);
-    virtual void Quit();
+    virtual void registerHandle(const std::type_index&, std::shared_ptr<EventHandler>);
+    virtual void unregisterHandle(const std::type_index&);
 
-    virtual void Join();
+    virtual const std::string& getName() const;
+    
+    virtual void post(std::shared_ptr<Event>);
+    virtual void quit();
+
+    virtual void join();
     
     bool isBusy() const;
 private:
+    Worker();
     EventQueue mEventQueue;
     std::shared_ptr<std::thread> mThread;
     std::condition_variable mCondition;
@@ -34,6 +36,7 @@ private:
 
     std::atomic<int> mBusy;
 
+    std::string mName;
     friend void run(void *p);
 
 };

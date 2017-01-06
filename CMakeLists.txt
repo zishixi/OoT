@@ -13,17 +13,15 @@ include_directories(${PROJECT_SOURCE_DIR}/inc)
 set(HEADER_FILES 
 	./inc/event.hpp
 	./inc/eventqueue.hpp
-	./inc/job.hpp
+	./inc/worker.hpp
 	./inc/portability.hpp
 	./inc/runnable.hpp
-	./inc/thread.hpp
 	)
 
 ###############setup source files###################################
 set(SOURCE_FILES 
+	./src/worker.cpp
 	./src/eventqueue.cpp
-	./src/job.cpp
-	./src/thread.cpp
 	)
 
 ###############setup example source files###################################

@@ -6,14 +6,18 @@ namespace OoT
 {
 
 
-void Worker::RegisterHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
+void Worker::registerHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
 {
-    mEventQueue.RegisterHandle(t, h);
+    if(h)
+    {
+        h->setWorker(shared_from_this());
+    }
+    mEventQueue.registerHandle(t, h);
 }
 
-void Worker::UnregisterHandle(const std::type_index& t)
+void Worker::unregisterHandle(const std::type_index& t)
 {
-    mEventQueue.UnregisterHandle(t);
+    mEventQueue.unregisterHandle(t);
 }
 
 void run(void *p)
@@ -32,10 +36,11 @@ void run(void *p)
         pJob->mBusy.store(1);
         try
         {
-            isQuit = pJob->mEventQueue.Process();
+            isQuit = pJob->mEventQueue.process();
         }
         catch(std::exception &e)
         {
+            (e);
             //TODO:
         }
         catch(...)
@@ -51,7 +56,7 @@ bool Worker::isBusy() const
     return (1 == mBusy.load());
 }
 
-Worker::Worker() : mBusy(0)
+Worker::Worker(std::string name) : mBusy(0), mName(name)
 {
     mThread = std::shared_ptr<std::thread>(new std::thread(run, this));
 }
@@ -60,20 +65,17 @@ Worker::~Worker()
 {
     if(mThread)
     {
+        mThread->detach();
         mThread.reset();
     }
 }
 
-void Worker::Quit()
+void Worker::quit()
 {
-    Post(std::shared_ptr<EventQuit>(new EventQuit()));
-    if (mThread)
-    {
-        mThread->join();
-    }
+    post(std::shared_ptr<EventQuit>(new EventQuit()));
 }
 
-void Worker::Join()
+void Worker::join()
 {
     if(mThread)
     {
@@ -81,11 +83,15 @@ void Worker::Join()
     }
 }
 
-void Worker::Post(std::shared_ptr<Event> e)
+void Worker::post(std::shared_ptr<Event> e)
 {
-    std::lock_guard<std::mutex> lk(mMutex);
-    mEventQueue.Post(e);
+    mEventQueue.post(e);
     mCondition.notify_one();
+}
+
+const std::string& Worker::getName() const
+{
+    return mName;
 }
 
 }

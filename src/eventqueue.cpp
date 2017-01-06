@@ -3,11 +3,27 @@
 
 namespace OoT
 {
-    
-void EventHandler::SetEvent(std::shared_ptr<Event> e)
+        
+void EventHandler::setEvent(std::shared_ptr<Event> e)
 {
     mEvent = e;
 }
+
+void EventHandler::setWorker(std::shared_ptr<Worker> worker)
+{
+    mWorker = worker;
+}    
+
+std::shared_ptr<Event> EventHandler::getEvent()
+{
+    return mEvent;
+}
+
+std::shared_ptr<Worker> EventHandler::getWorker()
+{
+    return mWorker;
+}
+
 
 void EventHandler::operator()()
 {
@@ -21,49 +37,56 @@ EventQueue::~EventQueue()
     mHandlers.clear();
 }
 
-int EventQueue::Process()
+std::shared_ptr<Event> EventQueue::getEvent()
+{
+    std::shared_ptr<Event> e;
+
+    std::unique_lock<std::mutex> lk(mMutex);
+    if (!mUndlying.empty())
+    {
+        e = mUndlying.front();
+        mUndlying.pop_front();
+    }
+    lk.unlock();
+
+    return e;
+}
+
+int EventQueue::process()
 {
     int isQuit = 0;
-    std::unique_lock<std::mutex> lk(mMutex);
     
-    while(!mUndlying.empty())
+    std::shared_ptr<Event> e = getEvent();
+
+    while (e)
     {
-        std::shared_ptr<Event> e = mUndlying.front();
-
-        mUndlying.pop_front();
-        
-        if (!e)
+        if (mHandlers.find(std::type_index(std::type_index(typeid(*e)))) != mHandlers.end())
         {
-            /// empty event
-            continue;
-        }
+            std::shared_ptr<EventHandler> h = mHandlers[std::type_index(typeid(*e))];
 
+            if (h)
+            {
+                h->setEvent(e);
+                (*h)();
+            }
+        }
+        
         if (typeid(*e) == typeid(EventQuit))
         {
-            lk.unlock();
             isQuit = 1;
-            break;
+            e.reset();
+        }
+        else
+        {
+            e = getEvent();
         }
         
-        if (mHandlers.find(std::type_index(std::type_index(typeid(*e)))) == mHandlers.end())
-        {
-            /// no handler
-            continue;
-        }
-
-        std::shared_ptr<EventHandler> h = mHandlers[std::type_index(typeid(*e))];
-
-        if (h)
-        {
-            h->SetEvent(e);
-            (*h)();
-        }
     }
 
     return isQuit;
 }
 
-void EventQueue::Post(std::shared_ptr<Event> e)
+void EventQueue::post(std::shared_ptr<Event> e)
 {
     std::unique_lock<std::mutex> lk(mMutex);
     
@@ -77,7 +100,7 @@ void EventQueue::Post(std::shared_ptr<Event> e)
     }
 }
 
-void EventQueue::RegisterHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
+void EventQueue::registerHandle(const std::type_index& t, std::shared_ptr<EventHandler> h)
 {
     std::unique_lock<std::mutex> lk(mMutex);
     
@@ -91,7 +114,7 @@ void EventQueue::RegisterHandle(const std::type_index& t, std::shared_ptr<EventH
     }
 }
 
-void EventQueue::UnregisterHandle(const std::type_index& t)
+void EventQueue::unregisterHandle(const std::type_index& t)
 {
     std::unique_lock<std::mutex> lk(mMutex);
     
